@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — AI FAQ Generator{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-5">
+  <div class="container py-4">
+    <div class="row align-items-center gy-4">
+      <div class="col-lg-8 text-center text-lg-start">
+        <div class="badge hero-badge px-3 py-2 rounded-pill mb-3">
+          <i class="fa-solid fa-sparkles text-warning me-1"></i> Powered by Groq LLM & Intelligent Parsing
+        </div>
+        <h1 class="display-4 fw-extrabold mb-3 tracking-tight">
+          Welcome to <span class="text-gradient">AI FAQ Generator</span>
+        </h1>
+        <p class="lead text-white-50 mb-4 max-w-2xl">
+          Turn Any Document into Instant Answers. Upload research papers, employee handbooks, paste text, or pick a topic to create accurate, well-structured FAQs in seconds.
+        </p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+          <a href="/generate" class="btn btn-lg btn-primary-gradient px-4 py-3 text-white fw-bold shadow-md">
+            <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Generate FAQs Now
+          </a>
+          <a href="/history" class="btn btn-lg btn-outline-light px-4 py-3 fw-semibold">
+            <i class="fa-solid fa-clock-rotate-left me-2"></i> View Saved History
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-4 d-none d-lg-block text-center">
+        <div class="hero-illustration-wrapper p-4">
+          <div class="hero-graphic-box p-4 rounded-4 shadow-lg text-start">
+            <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-light border-opacity-10">
+              <span class="small text-white-50"><i class="fa-solid fa-robot me-1"></i> Instant Synthesis</span>
+              <span class="badge bg-success bg-opacity-75 text-white">Active</span>
+            </div>
+            <div class="hero-faq-snippet mb-2 p-2 rounded bg-white bg-opacity-10">
+              <p class="small fw-semibold text-white mb-1"><i class="fa-solid fa-circle-question text-info me-1"></i> What is AI FAQ Generator?</p>
+              <p class="x-small text-white-50 mb-0">It automatically transforms complex documents into clear questions and answers.</p>
+            </div>
+            <div class="hero-faq-snippet p-2 rounded bg-white bg-opacity-10">
+              <p class="small fw-semibold text-white mb-1"><i class="fa-solid fa-circle-question text-info me-1"></i> What formats are supported?</p>
+              <p class="x-small text-white-50 mb-0">PDF files, raw text, and direct topic synthesis in multiple languages.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Container -->
+<div class="container py-5">
+
+  <!-- Stats Cards Row -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card stat-card border-0 shadow-sm rounded-12 p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-muted small fw-semibold text-uppercase tracking-wider mb-1">Total FAQs Generated</p>
+            <h2 class="display-6 fw-bold mb-0 text-navy">{{ stats.total_faqs if stats and stats.total_faqs is defined else 0 }}</h2>
+          </div>
+          <div class="stat-icon-wrapper rounded-circle bg-primary-soft text-primary">
+            <i class="fa-solid fa-question-circle fs-3"></i>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-top border-light-subtle d-flex align-items-center text-muted small">
+          <i class="fa-solid fa-arrow-trend-up text-success me-1"></i> Continuous learning & instant synthesis
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card border-0 shadow-sm rounded-12 p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-muted small fw-semibold text-uppercase tracking-wider mb-1">Documents Processed</p>
+            <h2 class="display-6 fw-bold mb-0 text-navy">{{ stats.total_documents if stats and stats.total_documents is defined else 0 }}</h2>
+          </div>
+          <div class="stat-icon-wrapper rounded-circle bg-danger-soft text-danger">
+            <i class="fa-solid fa-file-pdf fs-3"></i>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-top border-light-subtle d-flex align-items-center text-muted small">
+          <i class="fa-solid fa-check text-success me-1"></i> PDFs and plain text files parsed
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card border-0 shadow-sm rounded-12 p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <p class="text-muted small fw-semibold text-uppercase tracking-wider mb-1">Saved Generations</p>
+            <h2 class="display-6 fw-bold mb-0 text-navy">{{ stats.total_generations if stats and stats.total_generations is defined else 0 }}</h2>
+          </div>
+          <div class="stat-icon-wrapper rounded-circle bg-violet-soft text-accent-violet">
+            <i class="fa-solid fa-floppy-disk fs-3"></i>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-top border-light-subtle d-flex align-items-center text-muted small">
+          <i class="fa-solid fa-database text-info me-1"></i> Stored in your persistent database
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Section -->
+  <div class="mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h3 class="fw-bold text-navy mb-1">Quick Generation Modes</h3>
+        <p class="text-muted mb-0 small">Select your preferred source to start generating FAQs immediately</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="card action-card border-0 shadow-sm rounded-12 h-100 p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="action-icon-pill bg-danger-soft text-danger mb-3">
+              <i class="fa-solid fa-file-pdf fs-4"></i>
+            </div>
+            <h5 class="fw-bold text-navy mb-2">Upload PDF Document</h5>
+            <p class="text-muted small mb-4">
+              Upload manuals, policies, lecture notes, or whitepapers. Our intelligent parser extracts the core concepts to craft questions.
+            </p>
+          </div>
+          <div>
+            <a href="/generate?tab=pdf" class="btn btn-outline-danger w-100 fw-semibold rounded-pill">
+              <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Upload PDF
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="card action-card border-0 shadow-sm rounded-12 h-100 p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="action-icon-pill bg-blue-soft text-accent-blue mb-3">
+              <i class="fa-solid fa-align-left fs-4"></i>
+            </div>
+            <h5 class="fw-bold text-navy mb-2">Paste Raw Text</h5>
+            <p class="text-muted small mb-4">
+              Directly paste articles, emails, FAQs, customer queries, or markdown notes to extract targeted Q&As with customizable length.
+            </p>
+          </div>
+          <div>
+            <a href="/generate?tab=text" class="btn btn-outline-primary w-100 fw-semibold rounded-pill">
+              <i class="fa-solid fa-paste me-1"></i> Paste Text
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <div class="card action-card border-0 shadow-sm rounded-12 h-100 p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="action-icon-pill bg-violet-soft text-accent-violet mb-3">
+              <i class="fa-solid fa-lightbulb fs-4"></i>
+            </div>
+            <h5 class="fw-bold text-navy mb-2">Generate by Topic</h5>
+            <p class="text-muted small mb-4">
+              Enter any technical or general topic (e.g. "Python Async", "Company Benefits"). Groq AI synthesizes FAQs using deep domain knowledge.
+            </p>
+          </div>
+          <div>
+            <a href="/generate?tab=topic" class="btn btn-outline-secondary w-100 fw-semibold rounded-pill">
+              <i class="fa-solid fa-brain me-1"></i> Explore Topic
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Generations Section -->
+  <div class="card border-0 shadow-sm rounded-12 p-4">
+    <div class="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3 flex-wrap gap-2">
+      <div>
+        <h4 class="fw-bold text-navy mb-0">Recent Generations</h4>
+        <span class="text-muted small">Access your recently generated and saved FAQ collections</span>
+      </div>
+      <div>
+        <a href="/history" class="btn btn-sm btn-outline-dark fw-semibold">
+          View All History <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+
+    {% if recent_generations and recent_generations|length > 0 %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="border-0">Title / Topic</th>
+              <th scope="col" class="border-0">Source</th>
+              <th scope="col" class="border-0">Questions</th>
+              <th scope="col" class="border-0">Language</th>
+              <th scope="col" class="border-0">Created Date</th>
+              <th scope="col" class="border-0 text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in recent_generations %}
+              <tr>
+                <td>
+                  <a href="/results/{{ item.id }}" class="text-decoration-none fw-semibold text-navy hover-primary d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-file-lines text-muted"></i>
+                    <span>{{ item.title or "Untitled FAQ Generation" }}</span>
+                  </a>
+                </td>
+                <td>
+                  {% set st = (item.source_type or 'topic')|lower %}
+                  {% if st == 'pdf' %}
+                    <span class="badge badge-source-pdf"><i class="fa-solid fa-file-pdf me-1"></i> PDF</span>
+                  {% elif st == 'text' %}
+                    <span class="badge badge-source-text"><i class="fa-solid fa-align-left me-1"></i> Text</span>
+                  {% else %}
+                    <span class="badge badge-source-topic"><i class="fa-solid fa-lightbulb me-1"></i> Topic</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    {{ item.faq_count or (item.faqs|length if item.faqs is defined else 0) }} FAQs
+                  </span>
+                </td>
+                <td>
+                  <span class="text-muted small">{{ item.language or 'English' }}</span>
+                </td>
+                <td>
+                  <span class="text-muted small">
+                    {{ item.created_at[:10] if item.created_at and item.created_at|length >= 10 else (item.created_at or 'Just now') }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <a href="/results/{{ item.id }}" class="btn btn-sm btn-outline-primary px-3 rounded-pill">
+                    <i class="fa-solid fa-eye me-1"></i> View
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <!-- Empty State -->
+      <div class="empty-state text-center py-5">
+        <div class="empty-state-icon mb-3">
+          <div class="d-inline-flex p-3 rounded-circle bg-light text-muted">
+            <i class="fa-solid fa-folder-open fs-1"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold text-navy mb-2">No FAQ generations yet</h5>
+        <p class="text-muted small max-w-md mx-auto mb-4">
+          Start by generating your first FAQ! Choose from a PDF file, raw text, or enter any topic to let AI work its magic.
+        </p>
+        <a href="/generate" class="btn btn-primary-gradient px-4 py-2 text-white fw-semibold rounded-pill shadow-sm">
+          <i class="fa-solid fa-plus me-1"></i> Create Your First FAQ
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

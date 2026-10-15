@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}About — AI FAQ Generator{% endblock %}
+
+{% block content %}
+<!-- About Hero -->
+<section class="about-hero text-white py-5">
+  <div class="container text-center py-4">
+    <div class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill mb-3">
+      <i class="fa-solid fa-circle-info text-info me-1"></i> Intelligent Knowledge Distillation
+    </div>
+    <h1 class="display-5 fw-extrabold mb-3">About <span class="text-gradient">AI FAQ Generator</span></h1>
+    <p class="lead text-white-50 mx-auto max-w-2xl mb-4">
+      Turn Any Document into Instant Answers. AI FAQ Generator empowers creators, educators, teams, and enterprises to unlock actionable insights from complex documents in seconds.
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="/generate" class="btn btn-primary-gradient px-4 py-2 text-white fw-bold rounded-pill shadow-sm">
+        <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Try It Now
+      </a>
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light px-4 py-2 rounded-pill">
+        <i class="fa-brands fa-github me-1"></i> GitHub Repository
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
+
+  <!-- Project Overview & Mission -->
+  <div class="row align-items-center gy-4 mb-5 pb-3">
+    <div class="col-lg-6">
+      <div class="pe-lg-4">
+        <h3 class="fw-bold text-navy mb-3">Bridging Content Overload with Clear, Interactive Answers</h3>
+        <p class="text-muted leading-relaxed mb-3">
+          Information overload is everywhere — lengthy technical manuals, dense textbooks, organizational policies, and scattered notes. Finding quick answers typically requires painstaking skimming and searching.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          <strong>AI FAQ Generator</strong> harnesses advanced Large Language Model intelligence via Groq to read, analyze, and synthesize structured, concise questions and answers. Whether you need educational flashcards, support help center articles, or quick executive summaries, our platform delivers customized FAQs tailored to your difficulty, tone, and language needs.
+        </p>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success fs-5"></i>
+              <span class="fw-semibold text-navy">Ultra-Fast Inference</span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success fs-5"></i>
+              <span class="fw-semibold text-navy">Multilingual Support</span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success fs-5"></i>
+              <span class="fw-semibold text-navy">Multi-Format Export</span>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success fs-5"></i>
+              <span class="fw-semibold text-navy">Full Editing Control</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-12 p-4 bg-light">
+        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+          <span class="fw-bold text-navy"><i class="fa-solid fa-cubes-stacked me-2 text-primary"></i>Core Capabilities</span>
+          <span class="badge bg-primary-soft text-primary">v1.0.0</span>
+        </div>
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+          <li class="d-flex gap-3">
+            <div class="p-2 rounded bg-white shadow-xs text-primary flex-shrink-0">
+              <i class="fa-solid fa-bolt-lightning"></i>
+            </div>
+            <div>
+              <strong class="text-navy d-block">Sub-Second Processing</strong>
+              <small class="text-muted">Powered by Groq's high-throughput LPU inference engine for rapid responses.</small>
+            </div>
+          </li>
+          <li class="d-flex gap-3">
+            <div class="p-2 rounded bg-white shadow-xs text-success flex-shrink-0">
+              <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div>
+              <strong class="text-navy d-block">Intelligent PDF Parsing</strong>
+              <small class="text-muted">Clean document extraction filtering out noise and maintaining contextual flow.</small>
+            </div>
+          </li>
+          <li class="d-flex gap-3">
+            <div class="p-2 rounded bg-white shadow-xs text-info flex-shrink-0">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <strong class="text-navy d-block">Local Persistent Privacy</strong>
+              <small class="text-muted">Stored securely in MySQL with instant export and full local ownership.</small>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section (3 Steps) -->
+  <div class="card border-0 shadow-sm rounded-12 p-5 mb-5 bg-gradient-subtle">
+    <div class="text-center mb-5">
+      <div class="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill mb-2">Workflow</div>
+      <h3 class="fw-bold text-navy">How It Works in 3 Simple Steps</h3>
+      <p class="text-muted small">From raw content to polished, interactive FAQs in less than a minute</p>
+    </div>
+
+    <div class="row g-4 position-relative">
+      <div class="col-md-4">
+        <div class="how-step-card text-center p-4 bg-white rounded-12 shadow-xs h-100">
+          <div class="step-number mb-3 mx-auto">1</div>
+          <h5 class="fw-bold text-navy mb-2">Upload or Input</h5>
+          <p class="text-muted small mb-0">
+            Upload any PDF document, paste raw paragraphs or notes, or simply enter any topic you want to unpack.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-step-card text-center p-4 bg-white rounded-12 shadow-xs h-100">
+          <div class="step-number mb-3 mx-auto">2</div>
+          <h5 class="fw-bold text-navy mb-2">AI Synthesizes</h5>
+          <p class="text-muted small mb-0">
+            Configure difficulty, language (English, Marathi, Hindi), length, and category. The AI extracts and structures Q&As.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-step-card text-center p-4 bg-white rounded-12 shadow-xs h-100">
+          <div class="step-number mb-3 mx-auto">3</div>
+          <h5 class="fw-bold text-navy mb-2">Review & Export</h5>
+          <p class="text-muted small mb-0">
+            Search, filter, edit questions or answers inline, and export instantly to TXT, CSV, or formatted PDF documents.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Grid (8 Key Features) -->
+  <div class="mb-5 pb-3">
+    <div class="text-center mb-5">
+      <div class="badge bg-primary-soft text-primary px-3 py-1 rounded-pill mb-2">Comprehensive Toolkit</div>
+      <h3 class="fw-bold text-navy">Packed With Powerful Features</h3>
+      <p class="text-muted small">Everything you need to create, manage, and share professional FAQ libraries</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Feature 1 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-danger-soft text-danger mb-3">
+            <i class="fa-solid fa-file-pdf fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">PDF Document Processing</h6>
+          <p class="text-muted small mb-0">Drag and drop any PDF up to 10MB. Text is safely extracted and ready for immediate synthesis.</p>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-warning-soft text-warning mb-3">
+            <i class="fa-solid fa-bolt-lightning fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">AI Generation via Groq</h6>
+          <p class="text-muted small mb-0">Harness state-of-the-art open models with ultra-low latency for instant FAQ drafting.</p>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-info-soft text-info mb-3">
+            <i class="fa-solid fa-language fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Multiple Languages</h6>
+          <p class="text-muted small mb-0">Generate native, grammatically accurate FAQs in English, Marathi (मराठी), and Hindi (हिन्दी).</p>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-success-soft text-success mb-3">
+            <i class="fa-solid fa-file-export fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Export to PDF, CSV & TXT</h6>
+          <p class="text-muted small mb-0">One-click downloads for clean plain text, spreadsheets for data import, or styled printable PDFs.</p>
+        </div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-primary-soft text-primary mb-3">
+            <i class="fa-solid fa-filter fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Real-Time Search & Filter</h6>
+          <p class="text-muted small mb-0">Instantly query any question or answer text, and filter dynamically by topic category.</p>
+        </div>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-violet-soft text-accent-violet mb-3">
+            <i class="fa-solid fa-pen-to-square fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Inline Edit & Customize</h6>
+          <p class="text-muted small mb-0">Easily modify generated questions, tweak answers, refine categories, and update titles with a click.</p>
+        </div>
+      </div>
+
+      <!-- Feature 7 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-secondary-subtle text-secondary mb-3">
+            <i class="fa-solid fa-database fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Persistent History</h6>
+          <p class="text-muted small mb-0">All generations are stored in your MySQL database. Revisit, rename, or re-export whenever needed.</p>
+        </div>
+      </div>
+
+      <!-- Feature 8 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card feature-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="feature-icon bg-blue-soft text-accent-blue mb-3">
+            <i class="fa-solid fa-mobile-screen-button fs-4"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Responsive & Accessible</h6>
+          <p class="text-muted small mb-0">Fluid design optimized for desktops, laptops, tablets, and phones with high accessibility standards.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use Cases Section -->
+  <div class="mb-5 pb-3">
+    <div class="text-center mb-5">
+      <div class="badge bg-info-soft text-info px-3 py-1 rounded-pill mb-2">Versatile Application</div>
+      <h3 class="fw-bold text-navy">Built for Diverse Needs</h3>
+      <p class="text-muted small">See how different professionals streamline their workflows</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="card use-case-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="badge bg-primary-soft text-primary p-2 rounded mb-3 d-inline-block">
+            <i class="fa-solid fa-graduation-cap fs-5"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Students & Learners</h6>
+          <p class="text-muted small mb-0">
+            Convert textbook chapters and syllabus notes into study questions, practice quizzes, and revision guides.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card use-case-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="badge bg-success-soft text-success p-2 rounded mb-3 d-inline-block">
+            <i class="fa-solid fa-chalkboard-user fs-5"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Teachers & Educators</h6>
+          <p class="text-muted small mb-0">
+            Quickly create course FAQs, lesson assessments, and review materials aligned with specific student grade levels.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card use-case-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="badge bg-violet-soft text-accent-violet p-2 rounded mb-3 d-inline-block">
+            <i class="fa-solid fa-briefcase fs-5"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Businesses & Product</h6>
+          <p class="text-muted small mb-0">
+            Turn product manuals, employee handbooks, and policy docs into accessible FAQs for staff onboarding and websites.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="card use-case-card border-0 shadow-sm rounded-12 p-4 h-100">
+          <div class="badge bg-warning-soft text-warning p-2 rounded mb-3 d-inline-block">
+            <i class="fa-solid fa-headset fs-5"></i>
+          </div>
+          <h6 class="fw-bold text-navy mb-2">Customer Support</h6>
+          <p class="text-muted small mb-0">
+            Extract recurring user issues and product updates into an interactive knowledge base to cut ticket response time.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technology Stack Section -->
+  <div class="card border-0 shadow-sm rounded-12 p-4 p-md-5 mb-5">
+    <div class="text-center mb-4">
+      <h4 class="fw-bold text-navy mb-1">Technology Stack & Architecture</h4>
+      <p class="text-muted small">Modern, secure, and performant web technologies</p>
+    </div>
+
+    <div class="row g-4 justify-content-center text-center">
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-brands fa-python fs-2 text-primary mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">Python 3.10+</h6>
+          <span class="x-small text-muted">Flask Backend</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-solid fa-microchip fs-2 text-warning mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">Groq LLM API</h6>
+          <span class="x-small text-muted">Llama 3 / Mixtral</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-brands fa-bootstrap fs-2 text-accent-violet mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">Bootstrap 5.3</h6>
+          <span class="x-small text-muted">Modern UI Framework</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-solid fa-database fs-2 text-success mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">MySQL + PyMySQL</h6>
+          <span class="x-small text-muted">Relational Database</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-solid fa-file-pdf fs-2 text-danger mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">PyMuPDF (fitz)</h6>
+          <span class="x-small text-muted">Document Parser</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-brands fa-js fs-2 text-warning mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">Vanilla JS (ES6+)</h6>
+          <span class="x-small text-muted">Reactive Client State</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-solid fa-font-awesome fs-2 text-info mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">Font Awesome 6</h6>
+          <span class="x-small text-muted">Modern Vector Icons</span>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <div class="tech-pill-box p-3 rounded-12 bg-light">
+          <i class="fa-solid fa-file-invoice fs-2 text-secondary mb-2"></i>
+          <h6 class="fw-bold mb-0 text-navy">ReportLab / CSV</h6>
+          <span class="x-small text-muted">Document Exporters</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Version & License Card -->
+  <div class="card border-0 shadow-sm rounded-12 p-4 text-center bg-light">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-md-start mb-2 mb-md-0">
+        <h6 class="fw-bold text-navy mb-1">AI FAQ Generator v1.0.0</h6>
+        <p class="text-muted small mb-0">Open Source MIT License &bull; Designed for rapid document comprehension</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <a href="/generate" class="btn btn-sm btn-primary-gradient text-white fw-semibold rounded-pill px-4">
+          <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Start Generating
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

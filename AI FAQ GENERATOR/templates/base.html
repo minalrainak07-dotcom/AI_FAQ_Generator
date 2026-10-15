@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AI FAQ Generator{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- Font Awesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') if url_for is defined else '/static/css/style.css' }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
+        <span class="brand-icon">🧠</span>
+        <span class="brand-text">AI FAQ Generator</span>
+      </a>
+      
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarNav" aria-controls="mainNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbarNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+          <li class="nav-item">
+            <a class="nav-link px-3 {% if request is defined and request.path == '/' %}active{% endif %}" href="/">
+              <i class="fa-solid fa-gauge-high me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {% if request is defined and request.path.startswith('/generate') %}active{% endif %}" href="/generate">
+              <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {% if request is defined and request.path.startswith('/history') %}active{% endif %}" href="/history">
+              <i class="fa-solid fa-clock-rotate-left me-1"></i> History
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {% if request is defined and request.path.startswith('/about') %}active{% endif %}" href="/about">
+              <i class="fa-solid fa-circle-info me-1"></i> About
+            </a>
+          </li>
+          <li class="nav-item ms-lg-2">
+            <a class="btn btn-sm btn-primary-gradient px-3 py-2 text-white fw-semibold shadow-sm" href="/generate">
+              <i class="fa-solid fa-plus me-1"></i> New FAQ
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages Area -->
+  {% if get_flashed_messages is defined %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container mt-3 flash-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category in ['error', 'danger'] else ('warning' if category == 'warning' else ('success' if category == 'success' else 'info')) }} alert-dismissible fade show shadow-sm d-flex align-items-center gap-2" role="alert">
+              <i class="fa-solid {{ 'fa-circle-exclamation' if category in ['error', 'danger'] else ('fa-triangle-exclamation' if category == 'warning' else ('fa-circle-check' if category == 'success' else 'fa-circle-info')) }} fs-5"></i>
+              <div>{{ message }}</div>
+              <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  {% endif %}
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" id="toastContainer"></div>
+
+  <!-- Global Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay d-none" aria-live="assertive" aria-modal="true" role="dialog">
+    <div class="loading-card text-center p-4 rounded-4 shadow-lg">
+      <div class="spinner-container mb-3 position-relative">
+        <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="spinner-center-icon">
+          <i class="fa-solid fa-brain text-accent-violet"></i>
+        </div>
+      </div>
+      <h5 class="fw-bold mb-2 loading-title text-navy" id="loadingTitle">Generating FAQs...</h5>
+      <p class="text-muted small mb-0 loading-subtitle" id="loadingSubtitle">This may take a moment while AI processes your input.</p>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer py-4 mt-auto">
+    <div class="container">
+      <div class="row align-items-center gy-3">
+        <div class="col-md-6 text-center text-md-start">
+          <p class="mb-0 text-white-50">
+            &copy; 2026 <span class="text-white fw-semibold">AI FAQ Generator</span> — Turn Any Document into Instant Answers
+          </p>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <ul class="list-inline mb-0">
+            <li class="list-inline-item">
+              <a href="/" class="text-white-50 text-decoration-none hover-white">Dashboard</a>
+            </li>
+            <li class="list-inline-item text-white-50">&bull;</li>
+            <li class="list-inline-item">
+              <a href="/generate" class="text-white-50 text-decoration-none hover-white">Generate</a>
+            </li>
+            <li class="list-inline-item text-white-50">&bull;</li>
+            <li class="list-inline-item">
+              <a href="/history" class="text-white-50 text-decoration-none hover-white">History</a>
+            </li>
+            <li class="list-inline-item text-white-50">&bull;</li>
+            <li class="list-inline-item">
+              <a href="/about" class="text-white-50 text-decoration-none hover-white">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5.3 JS Bundle CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+  <!-- Main Application JavaScript -->
+  <script src="{{ url_for('static', filename='js/app.js') if url_for is defined else '/static/js/app.js' }}"></script>
+  
+  {% block scripts %}{% endblock %}
+</body>
+</html>

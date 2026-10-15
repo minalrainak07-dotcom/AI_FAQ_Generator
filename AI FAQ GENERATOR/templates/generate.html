@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Generate FAQs — AI FAQ Generator{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Header & Instructions -->
+  <div class="row mb-4">
+    <div class="col-lg-8 mx-auto text-center">
+      <div class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill mb-2">
+        <i class="fa-solid fa-wand-magic-sparkles me-1"></i> AI Powered Generation
+      </div>
+      <h2 class="fw-extrabold text-navy mb-2">Generate Smart FAQs</h2>
+      <p class="text-muted mb-0">
+        Choose your source material, tune the generation parameters to your audience, and let Groq AI build ready-to-publish FAQ collections.
+      </p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Source Input Tabs -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-12 p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="fa-solid fa-file-import text-accent-blue me-2"></i>1. Select Input Source
+          </h5>
+          <span class="badge bg-light text-muted border" id="activeTabLabel">PDF Upload</span>
+        </div>
+
+        <!-- Source Selection Tabs -->
+        <ul class="nav nav-pills custom-source-pills mb-4 nav-justified" id="sourceMethodTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-pdf-tab" data-bs-toggle="pill" data-bs-target="#pills-pdf" type="button" role="tab" aria-controls="pills-pdf" aria-selected="true" data-source="pdf">
+              <i class="fa-solid fa-file-pdf me-2"></i>PDF Upload
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-text-tab" data-bs-toggle="pill" data-bs-target="#pills-text" type="button" role="tab" aria-controls="pills-text" aria-selected="false" data-source="text">
+              <i class="fa-solid fa-align-left me-2"></i>Paste Text
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-topic-tab" data-bs-toggle="pill" data-bs-target="#pills-topic" type="button" role="tab" aria-controls="pills-topic" aria-selected="false" data-source="topic">
+              <i class="fa-solid fa-lightbulb me-2"></i>Enter Topic
+            </button>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="sourceMethodTabContent">
+
+          <!-- TAB 1: PDF UPLOAD -->
+          <div class="tab-pane fade show active" id="pills-pdf" role="tabpanel" aria-labelledby="pills-pdf-tab">
+            <!-- Drag and Drop Zone -->
+            <div class="drop-zone p-4 text-center rounded-12" id="pdfDropZone">
+              <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" class="d-none">
+              <div class="drop-zone-prompt py-3">
+                <div class="drop-zone-icon mb-3">
+                  <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary"></i>
+                </div>
+                <h6 class="fw-bold text-navy mb-1">Drag and drop your PDF file here</h6>
+                <p class="text-muted small mb-3">or click to browse files from your computer</p>
+                <button type="button" class="btn btn-outline-primary btn-sm px-4 rounded-pill" id="browsePdfBtn">
+                  <i class="fa-solid fa-folder-open me-1"></i> Choose PDF
+                </button>
+                <div class="text-muted x-small mt-3">
+                  Supported format: <strong>.pdf</strong> (Maximum size: 10MB)
+                </div>
+              </div>
+            </div>
+
+            <!-- PDF File Info & Extract Actions -->
+            <div id="pdfSelectedCard" class="card bg-light border-0 rounded-12 p-3 mt-3 d-none">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3 text-truncate">
+                  <div class="pdf-file-icon p-2 bg-danger-soft text-danger rounded">
+                    <i class="fa-solid fa-file-pdf fs-3"></i>
+                  </div>
+                  <div class="text-truncate">
+                    <h6 class="mb-0 fw-semibold text-navy text-truncate" id="pdfFileName">document.pdf</h6>
+                    <span class="text-muted small" id="pdfFileSize">0 KB</span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="removePdfBtn" title="Remove PDF">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-primary-gradient text-white fw-semibold" id="extractPdfBtn">
+                    <i class="fa-solid fa-file-import me-1"></i> Extract Text
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PDF Extraction Status & Collapsible Preview -->
+            <div id="pdfExtractionResult" class="mt-3 d-none">
+              <div class="alert alert-success d-flex align-items-center justify-content-between py-2 px-3 rounded-12 mb-2" role="alert">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-circle-check fs-5"></i>
+                  <span id="pdfExtractStatusText" class="small fw-semibold">PDF text extracted successfully!</span>
+                </div>
+                <button class="btn btn-sm btn-link text-success text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#pdfPreviewCollapse" aria-expanded="false" aria-controls="pdfPreviewCollapse">
+                  <span class="small">Toggle Preview <i class="fa-solid fa-chevron-down ms-1"></i></span>
+                </button>
+              </div>
+
+              <div class="collapse" id="pdfPreviewCollapse">
+                <div class="card card-body bg-light border-0 rounded-12 p-3">
+                  <label class="form-label small fw-semibold text-muted mb-1">Extracted Text Content:</label>
+                  <textarea id="pdfExtractedTextPreview" class="form-control form-control-sm bg-white" rows="6" readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: PASTE TEXT -->
+          <div class="tab-pane fade" id="pills-text" role="tabpanel" aria-labelledby="pills-text-tab">
+            <div class="mb-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <label for="textInput" class="form-label fw-semibold text-navy mb-0">
+                  Paste Source Content or Documentation
+                </label>
+                <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none p-0" id="clearTextBtn">
+                  <i class="fa-solid fa-eraser me-1"></i> Clear Text
+                </button>
+              </div>
+              <textarea id="textInput" class="form-control rounded-12 p-3 font-monospace-light" rows="10" placeholder="Paste your article, meeting notes, customer conversations, policy documentation, or product specs here..."></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center text-muted small px-1">
+              <div>
+                <i class="fa-solid fa-keyboard me-1"></i>
+                <span id="charCount">0</span> characters &bull; <span id="wordCount">0</span> words
+              </div>
+              <div class="text-muted">Min recommended: 100 characters</div>
+            </div>
+          </div>
+
+          <!-- TAB 3: ENTER TOPIC -->
+          <div class="tab-pane fade" id="pills-topic" role="tabpanel" aria-labelledby="pills-topic-tab">
+            <div class="mb-3">
+              <label for="topicInput" class="form-label fw-semibold text-navy">
+                Topic or Subject <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 rounded-start-12 text-muted">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" class="form-control border-start-0 rounded-end-12 py-2" id="topicInput" placeholder="e.g. Artificial Intelligence Ethics, Python FastAPI, Digital Marketing 2026...">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="topicDescription" class="form-label fw-semibold text-navy">
+                Context / Specific Focus Areas <span class="text-muted small fw-normal">(Optional)</span>
+              </label>
+              <textarea class="form-control rounded-12 p-3" id="topicDescription" rows="4" placeholder="Mention target audience, specific sub-topics, industry context, or questions you especially want covered..."></textarea>
+            </div>
+
+            <!-- Quick Topic Suggestions -->
+            <div class="topic-suggestions">
+              <label class="form-label small fw-semibold text-muted mb-2">
+                <i class="fa-solid fa-tags me-1"></i> Quick Topic Suggestions:
+              </label>
+              <div class="d-flex flex-wrap gap-2" id="quickTopicTags">
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Artificial Intelligence & Machine Learning">
+                  🤖 AI & ML
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Python Programming Best Practices">
+                  🐍 Python
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Digital Marketing and SEO">
+                  📈 Digital Marketing
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Renewable Energy and Climate Science">
+                  🌱 Science
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Online Education and Remote Learning">
+                  🎓 Education
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Business Strategy & Startups">
+                  💼 Business
+                </button>
+                <button type="button" class="btn btn-sm btn-light border topic-tag-btn" data-topic="Customer Support Excellence">
+                  🎧 Customer Support
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Generation Settings & Action -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-12 p-4 sticky-top" style="top: 85px;">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
+          <h5 class="fw-bold text-navy mb-0">
+            <i class="fa-solid fa-sliders text-accent-violet me-2"></i>2. Generation Settings
+          </h5>
+          <span class="badge bg-secondary-subtle text-secondary small">Customizable</span>
+        </div>
+
+        <form id="faqGenerationForm" onsubmit="return false;">
+          <!-- Number of FAQs -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-navy d-flex justify-content-between align-items-center">
+              <span>Number of FAQs</span>
+              <span class="badge bg-primary text-white" id="numFaqsBadge">5 FAQs</span>
+            </label>
+            <div class="btn-group w-100" role="group" aria-label="Number of FAQs selector">
+              <input type="radio" class="btn-check" name="numFaqs" id="numFaqs5" value="5" checked>
+              <label class="btn btn-outline-primary" for="numFaqs5">5</label>
+
+              <input type="radio" class="btn-check" name="numFaqs" id="numFaqs10" value="10">
+              <label class="btn btn-outline-primary" for="numFaqs10">10</label>
+
+              <input type="radio" class="btn-check" name="numFaqs" id="numFaqs15" value="15">
+              <label class="btn btn-outline-primary" for="numFaqs15">15</label>
+
+              <input type="radio" class="btn-check" name="numFaqs" id="numFaqs20" value="20">
+              <label class="btn btn-outline-primary" for="numFaqs20">20</label>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="mb-3">
+            <label for="difficultySelect" class="form-label fw-semibold text-navy">Difficulty Level</label>
+            <select class="form-select rounded-12" id="difficultySelect" name="difficulty">
+              <option value="Beginner">Beginner (Simple language, fundamental concepts)</option>
+              <option value="Intermediate" selected>Intermediate (Balanced depth, practical details)</option>
+              <option value="Advanced">Advanced (Technical jargon, in-depth nuances)</option>
+            </select>
+          </div>
+
+          <!-- Answer Length -->
+          <div class="mb-3">
+            <label for="answerLengthSelect" class="form-label fw-semibold text-navy">Answer Length</label>
+            <select class="form-select rounded-12" id="answerLengthSelect" name="answerLength">
+              <option value="Short">Short (Concise 1-2 sentences)</option>
+              <option value="Medium" selected>Medium (1 informative paragraph)</option>
+              <option value="Detailed">Detailed (Comprehensive explanation with key takeaways)</option>
+            </select>
+          </div>
+
+          <!-- Language -->
+          <div class="mb-3">
+            <label for="languageSelect" class="form-label fw-semibold text-navy">Language</label>
+            <select class="form-select rounded-12" id="languageSelect" name="language">
+              <option value="English" selected>English</option>
+              <option value="Marathi">Marathi (मराठी)</option>
+              <option value="Hindi">Hindi (हिन्दी)</option>
+            </select>
+          </div>
+
+          <!-- Category -->
+          <div class="mb-4">
+            <label for="categorySelect" class="form-label fw-semibold text-navy">Category Domain</label>
+            <select class="form-select rounded-12" id="categorySelect" name="category">
+              <option value="General Knowledge" selected>General Knowledge</option>
+              <option value="Education">Education & Academic</option>
+              <option value="Technical">Technical & Engineering</option>
+              <option value="Business">Business & Corporate</option>
+              <option value="Customer Support">Customer Support</option>
+              <option value="Website Documentation">Website Documentation</option>
+            </select>
+          </div>
+
+          <!-- Settings Summary Pill Box -->
+          <div class="settings-summary-box p-3 rounded-12 bg-light mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="x-small fw-bold text-uppercase text-muted">Configured Recipe</span>
+              <i class="fa-solid fa-circle-check text-success small"></i>
+            </div>
+            <div class="d-flex flex-wrap gap-1" id="settingsSummaryBadges">
+              <span class="badge bg-white text-navy border" id="summaryBadgeCount">5 FAQs</span>
+              <span class="badge bg-white text-navy border" id="summaryBadgeDifficulty">Intermediate</span>
+              <span class="badge bg-white text-navy border" id="summaryBadgeLength">Medium</span>
+              <span class="badge bg-white text-navy border" id="summaryBadgeLanguage">English</span>
+              <span class="badge bg-white text-navy border" id="summaryBadgeCategory">General Knowledge</span>
+            </div>
+          </div>
+
+          <!-- Prominent Generate Button -->
+          <button type="button" class="btn btn-lg btn-primary-gradient w-100 py-3 text-white fw-bold shadow-md d-flex align-items-center justify-content-center gap-2" id="generateFaqBtn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Generate FAQs Now</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

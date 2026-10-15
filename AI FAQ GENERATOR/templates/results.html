@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}{% if generation and generation.title %}{{ generation.title }} — AI FAQ Generator{% else %}FAQ Results — AI FAQ Generator{% endif %}{% endblock %}
+
+{% block head %}
+{% if generation %}
+<script>
+  window.SERVER_GENERATION = {{ generation | tojson }};
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Breadcrumb & Top Bar -->
+  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/history" class="text-decoration-none">History</a></li>
+        <li class="breadcrumb-item active" aria-current="page" id="breadcrumbTitle">
+          {{ generation.title if generation and generation.title else 'Generated FAQs' }}
+        </li>
+      </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/generate" class="btn btn-sm btn-outline-primary rounded-pill">
+        <i class="fa-solid fa-plus me-1"></i> New Generation
+      </a>
+      <a href="/history" class="btn btn-sm btn-outline-secondary rounded-pill">
+        <i class="fa-solid fa-clock-rotate-left me-1"></i> History
+      </a>
+    </div>
+  </div>
+
+  <!-- Header Card: Title, Badges & Metadata -->
+  <div class="card border-0 shadow-sm rounded-12 p-4 mb-4 results-header-card">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div class="flex-grow-1">
+        <!-- Editable Title Row -->
+        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap" id="titleDisplayContainer">
+          <h2 class="fw-bold text-navy mb-0" id="resultsTitle">
+            {{ generation.title if generation and generation.title else 'AI Generated FAQ Collection' }}
+          </h2>
+          <button type="button" class="btn btn-sm btn-light border-0 text-muted hover-primary" id="btnEditTitle" title="Click to edit title">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+        </div>
+
+        <!-- Inline Title Edit Form (hidden by default) -->
+        <div class="d-none mb-2" id="titleEditContainer">
+          <div class="input-group" style="max-width: 600px;">
+            <input type="text" class="form-control fw-bold fs-5 rounded-start-12" id="titleEditInput" value="{{ generation.title if generation and generation.title else '' }}">
+            <button class="btn btn-success" type="button" id="btnSaveTitle">
+              <i class="fa-solid fa-check me-1"></i> Save
+            </button>
+            <button class="btn btn-secondary rounded-end-12" type="button" id="btnCancelTitle">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metadata Badges -->
+        <div class="d-flex align-items-center gap-2 flex-wrap" id="resultsMetaBadges">
+          <!-- Source Badge -->
+          {% set source = (generation.source_type if generation and generation.source_type else 'topic')|lower %}
+          <span class="badge {% if source == 'pdf' %}badge-source-pdf{% elif source == 'text' %}badge-source-text{% else %}badge-source-topic{% endif %}" id="badgeSource">
+            <i class="fa-solid {% if source == 'pdf' %}fa-file-pdf{% elif source == 'text' %}fa-align-left{% else %}fa-lightbulb{% endif %} me-1"></i>
+            <span id="badgeSourceText">{{ (generation.source_type if generation and generation.source_type else 'Topic')|capitalize }}</span>
+          </span>
+
+          <!-- FAQs count badge -->
+          <span class="badge bg-light text-navy border" id="badgeFaqCount">
+            <i class="fa-solid fa-list-ol me-1"></i>
+            <span id="badgeFaqCountText">{{ generation.faqs|length if generation and generation.faqs is defined else '0' }} FAQs</span>
+          </span>
+
+          <!-- Difficulty -->
+          <span class="badge bg-light text-secondary border" id="badgeDifficulty">
+            <i class="fa-solid fa-gauge me-1"></i>
+            <span id="badgeDifficultyText">{{ generation.difficulty if generation and generation.difficulty else 'Intermediate' }}</span>
+          </span>
+
+          <!-- Language -->
+          <span class="badge bg-light text-secondary border" id="badgeLanguage">
+            <i class="fa-solid fa-language me-1"></i>
+            <span id="badgeLanguageText">{{ generation.language if generation and generation.language else 'English' }}</span>
+          </span>
+
+          <!-- Answer Length -->
+          <span class="badge bg-light text-secondary border" id="badgeAnswerLength">
+            <i class="fa-solid fa-text-height me-1"></i>
+            <span id="badgeAnswerLengthText">{{ generation.answer_length if generation and generation.answer_length else 'Medium' }}</span>
+          </span>
+
+          <!-- Created Date -->
+          <span class="text-muted small ms-md-2" id="resultsDate">
+            <i class="fa-regular fa-calendar-days me-1"></i>
+            <span id="resultsDateText">{{ generation.created_at[:10] if generation and generation.created_at and generation.created_at|length >= 10 else 'Today' }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Save Status Pill (for unsaved results) -->
+      <div class="text-md-end">
+        <div id="saveStatusIndicator">
+          {% if generation and generation.id %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+              <i class="fa-solid fa-circle-check me-1"></i> Saved in Database
+            </span>
+          {% else %}
+            <button type="button" class="btn btn-success fw-semibold shadow-sm px-3 rounded-pill" id="btnSaveToDb">
+              <i class="fa-solid fa-floppy-disk me-1"></i> Save to Database
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Toolbar -->
+  <div class="card border-0 shadow-sm rounded-12 p-3 mb-4 action-toolbar">
+    <div class="row g-2 align-items-center">
+      <!-- Search Input -->
+      <div class="col-md-4 col-12">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text bg-light border-end-0 text-muted">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 bg-light" id="faqSearchInput" placeholder="Filter questions or answers...">
+          <button class="btn btn-outline-secondary d-none" type="button" id="clearFaqSearchBtn">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter -->
+      <div class="col-md-3 col-sm-6">
+        <select class="form-select form-select-sm bg-light" id="faqCategoryFilter">
+          <option value="all" selected>All Categories</option>
+          <!-- Dynamically populated or updated in JS -->
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="col-md-5 col-sm-6 text-md-end d-flex flex-wrap gap-1 justify-content-md-end justify-content-start">
+        <!-- Expand / Collapse All -->
+        <button type="button" class="btn btn-sm btn-light border text-navy" id="btnExpandAll" title="Expand All FAQs">
+          <i class="fa-solid fa-arrows-up-down me-1"></i> Expand All
+        </button>
+
+        <!-- Copy All FAQs -->
+        <button type="button" class="btn btn-sm btn-light border text-navy" id="btnCopyAll" title="Copy all questions and answers">
+          <i class="fa-regular fa-copy me-1"></i> Copy All
+        </button>
+
+        <!-- Export Dropdown -->
+        <div class="dropdown d-inline-block">
+          <button class="btn btn-sm btn-outline-primary dropdown-toggle fw-semibold" type="button" id="exportDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-file-export me-1"></i> Export
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="exportDropdownBtn">
+            <li>
+              <a class="dropdown-item py-2" href="#" id="btnExportTxt">
+                <i class="fa-solid fa-file-lines text-muted me-2"></i> Export as Plain Text (.txt)
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2" href="#" id="btnExportCsv">
+                <i class="fa-solid fa-file-csv text-success me-2"></i> Export as Spreadsheet (.csv)
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item py-2" href="#" id="btnExportPdf">
+                <i class="fa-solid fa-file-pdf text-danger me-2"></i> Export as Document (.pdf)
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Print -->
+        <button type="button" class="btn btn-sm btn-light border text-navy" id="btnPrintFaqs" title="Print FAQs">
+          <i class="fa-solid fa-print"></i>
+        </button>
+
+        <!-- Regenerate -->
+        <button type="button" class="btn btn-sm btn-light border text-navy" id="btnRegenerate" title="Regenerate with same settings">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+
+        <!-- Delete Entire Generation (Saved Only) -->
+        <button type="button" class="btn btn-sm btn-outline-danger {% if not generation or not generation.id %}d-none{% endif %}" id="btnDeleteGeneration" title="Delete Generation">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Accordion Container -->
+  <div class="faq-accordion-wrapper mb-5" id="faqAccordionContainer">
+    {% if generation and generation.faqs and generation.faqs|length > 0 %}
+      <div class="accordion custom-faq-accordion" id="faqAccordion">
+        {% for faq in generation.faqs %}
+          <div class="accordion-item faq-item-card border-0 mb-3 shadow-sm rounded-12 overflow-hidden" data-faq-id="{{ faq.id or loop.index }}" data-category="{{ faq.category or 'General' }}">
+            <h2 class="accordion-header" id="heading-{{ loop.index }}">
+              <button class="accordion-button collapsed px-4 py-3 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ loop.index }}" aria-expanded="false" aria-controls="collapse-{{ loop.index }}">
+                <span class="faq-number-badge me-3">Q{{ loop.index }}</span>
+                <span class="faq-question-text fw-semibold text-navy flex-grow-1 me-2">{{ faq.question }}</span>
+                <span class="badge bg-light text-secondary border me-3 d-none d-sm-inline-block faq-category-tag">
+                  {{ faq.category or 'General' }}
+                </span>
+              </button>
+            </h2>
+            <div id="collapse-{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ loop.index }}" data-bs-parent="#faqAccordion">
+              <div class="accordion-body px-4 pb-4 pt-2 bg-white">
+                <div class="faq-answer-content text-dark mb-3">
+                  {{ faq.answer }}
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-light-subtle flex-wrap gap-2">
+                  <div class="d-sm-none">
+                    <span class="badge bg-light text-secondary border">{{ faq.category or 'General' }}</span>
+                  </div>
+                  <div class="ms-auto d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-link text-muted text-decoration-none btn-copy-faq" title="Copy Question and Answer">
+                      <i class="fa-regular fa-copy me-1"></i> Copy
+                    </button>
+                    <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none btn-edit-faq" title="Edit Question or Answer">
+                      <i class="fa-solid fa-pen me-1"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none btn-delete-faq" title="Delete this FAQ">
+                      <i class="fa-regular fa-trash-can me-1"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Placeholder container for client-side rendered FAQs from sessionStorage -->
+      <div id="clientFaqPlaceholder" class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading FAQs...</span>
+        </div>
+        <p class="text-muted">Loading your generated FAQ items...</p>
+      </div>
+      <div class="accordion custom-faq-accordion d-none" id="faqAccordion"></div>
+    {% endif %}
+  </div>
+
+  <!-- Bottom Navigation Actions -->
+  <div class="d-flex align-items-center justify-content-between pt-3 border-top flex-wrap gap-3">
+    <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
+      <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+    <div class="d-flex gap-2">
+      <a href="/generate" class="btn btn-primary-gradient text-white rounded-pill px-4 fw-semibold shadow-sm">
+        <i class="fa-solid fa-plus me-2"></i> Generate More FAQs
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal: Edit FAQ Item -->
+<div class="modal fade" id="editFaqModal" tabindex="-1" aria-labelledby="editFaqModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-12">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title fw-bold text-navy" id="editFaqModalLabel">
+          <i class="fa-solid fa-pen-to-square text-primary me-2"></i>Edit FAQ Item
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="editModalFaqId" value="">
+        <input type="hidden" id="editModalItemIndex" value="">
+
+        <div class="mb-3">
+          <label for="editModalQuestion" class="form-label fw-semibold text-navy">Question</label>
+          <input type="text" class="form-control rounded-12 py-2" id="editModalQuestion" placeholder="Enter question...">
+        </div>
+
+        <div class="mb-3">
+          <label for="editModalCategory" class="form-label fw-semibold text-navy">Category</label>
+          <input type="text" class="form-control rounded-12 py-2" id="editModalCategory" placeholder="e.g. Technical, General Knowledge...">
+        </div>
+
+        <div class="mb-3">
+          <label for="editModalAnswer" class="form-label fw-semibold text-navy">Answer</label>
+          <textarea class="form-control rounded-12 p-3" id="editModalAnswer" rows="6" placeholder="Enter comprehensive answer..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer border-top bg-light rounded-bottom-12">
+        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary-gradient text-white rounded-pill px-4 fw-semibold shadow-sm" id="btnSaveFaqEdit">
+          <i class="fa-solid fa-check me-1"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Delete FAQ -->
+<div class="modal fade" id="deleteFaqModal" tabindex="-1" aria-labelledby="deleteFaqModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow rounded-12 text-center p-4">
+      <div class="mb-3">
+        <div class="d-inline-flex p-3 rounded-circle bg-danger-soft text-danger">
+          <i class="fa-solid fa-trash-can fs-3"></i>
+        </div>
+      </div>
+      <h5 class="fw-bold text-navy mb-2" id="deleteFaqModalLabel">Delete FAQ?</h5>
+      <p class="text-muted small mb-4">Are you sure you want to remove this question from your collection?</p>
+      <input type="hidden" id="deleteModalFaqId" value="">
+      <input type="hidden" id="deleteModalIndex" value="">
+      <div class="d-flex gap-2 justify-content-center">
+        <button type="button" class="btn btn-light border px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4 rounded-pill fw-semibold" id="btnConfirmDeleteFaq">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Delete Entire Generation -->
+<div class="modal fade" id="deleteGenerationModal" tabindex="-1" aria-labelledby="deleteGenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow rounded-12 text-center p-4">
+      <div class="mb-3">
+        <div class="d-inline-flex p-3 rounded-circle bg-danger-soft text-danger">
+          <i class="fa-solid fa-triangle-exclamation fs-3"></i>
+        </div>
+      </div>
+      <h5 class="fw-bold text-navy mb-2" id="deleteGenModalLabel">Delete Generation?</h5>
+      <p class="text-muted small mb-4">This will permanently delete this FAQ collection and all its questions from the database.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button type="button" class="btn btn-light border px-3 rounded-pill" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger px-4 rounded-pill fw-semibold" id="btnConfirmDeleteGen">
+          Delete Forever
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
