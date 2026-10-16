@@ -4,7 +4,6 @@ import pymysql
 
 logger = logging.getLogger(__name__)
 
-
 def get_db_connection():
     """Create and return a new MySQL connection."""
     try:
