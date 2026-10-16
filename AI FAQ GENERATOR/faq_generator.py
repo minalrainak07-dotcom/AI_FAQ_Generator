@@ -24,13 +24,23 @@ def generate_faqs(source_text, source_type='text', num_faqs=5, difficulty='inter
         dict: {"success": True, "data": {"title": ..., "faqs": [...]}}
               or {"success": False, "error": "descriptive message"}
     """
-    api_key = os.getenv('GROQ_API_KEY')
-    if not api_key or not api_key.strip() or api_key == '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':
-        return {
-            "success": False,
-            "error": "Groq API key is missing or not configured. Please set GROQ_API_KEY in your .env file."
-        }
+    
+api_key = os.getenv('GROQ_API_KEY')
 
+if (
+    not api_key
+    or not api_key.strip()
+    or api_key.strip() == 'your_groq_api_key_here'
+):
+    return {
+        "success": False,
+        "error": (
+            "Groq API key is missing or not configured. "
+            "Please set GROQ_API_KEY in Render Environment."
+        )
+    }
+
+       
     model = os.getenv('GROQ_MODEL', 'openai/gpt-oss-120b')
 
     if not source_text or not str(source_text).strip():
