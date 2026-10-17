@@ -1,7 +1,7 @@
 import os
 import tempfile
 import logging
-import pymupdf  # PyMuPDF (previously imported as fitz)
+import fitz# PyMuPDF (previously imported as fitz)
 from werkzeug.utils import secure_filename
 
 logger = logging.getLogger(__name__)
