@@ -6,7 +6,15 @@ from flask import Flask, render_template, request, jsonify, send_file, redirect,
 from werkzeug.exceptions import RequestEntityTooLarge
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-
+from flask import (
+    request, session, flash,
+    redirect, url_for, render_template
+)
+from database import (
+    create_user,
+    get_user_by_email,
+    verify_user_password
+)
 from database import (
     get_db_connection,
     init_db,
@@ -38,6 +46,73 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'default-dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10 MB limit
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not full_name or not email or not password:
+            flash("Please fill in all fields.", "error")
+            return render_template("signup.html")
+
+        if len(password) < 8:
+            flash("Password must be at least 8 characters.", "error")
+            return render_template("signup.html")
+
+        try:
+            existing_user = get_user_by_email(email)
+
+            if existing_user:
+                flash("This email is already registered.", "error")
+                return render_template("signup.html")
+
+            create_user(full_name, email, password)
+
+            flash("Signup successful! Please log in.", "success")
+            return redirect(url_for("login"))
+
+        except Exception:
+            app.logger.exception("Signup failed")
+            flash("Account creation failed. Please check the database.", "error")
+            return render_template("signup.html")
+
+    return render_template("signup.html")
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not email or not password:
+            flash("Please enter email and password.", "error")
+            return render_template("login.html")
+
+        try:
+            user = get_user_by_email(email)
+
+            if user and verify_user_password(user, password):
+                session["user_id"] = user["id"]
+                session["user_name"] = user["full_name"]
+                flash("Login successful!", "success")
+                return redirect(url_for("index"))
+
+            flash("Invalid email or password.", "error")
+
+        except Exception:
+            app.logger.exception("Login failed")
+            flash("Login failed. Please check the database connection.", "error")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("login"))
+
 
 # Ensure uploads directory exists
 UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
