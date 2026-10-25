@@ -1,7 +1,7 @@
 import os
 import logging
 import pymysql
-
+from werkzeug.security import generate_password_hash, check_password_hash
 logger = logging.getLogger(__name__)
 
 
@@ -340,3 +340,148 @@ def get_recent_generations(limit=5):
         return []
     finally:
         conn.close()
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+def create_user(full_name, email, password):
+    """Create a user account with a securely hashed password."""
+    conn = get_db_connection()
+    if conn is None:
+        return False, "Database connection failed."
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO users (full_name, email, password_hash)
+                VALUES (%s, %s, %s)
+                """,
+                (
+                    full_name.strip(),
+                    email.strip().lower(),
+                    generate_password_hash(password),
+                ),
+            )
+        conn.commit()
+        return True, "Account created successfully."
+
+    except pymysql.err.IntegrityError:
+        conn.rollback()
+        return False, "This email is already registered."
+
+    except Exception:
+        conn.rollback()
+        logger.exception("User registration failed")
+        return False, "Could not create account."
+
+    finally:
+        conn.close()
+
+
+def get_user_by_email(email):
+    """Find a registered user by email."""
+    conn = get_db_connection()
+    if conn is None:
+        return None
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT * FROM users WHERE email = %s",
+                (email.strip().lower(),),
+            )
+            return cursor.fetchone()
+    except Exception:
+        logger.exception("User lookup failed")
+        return None
+    finally:
+        conn.close()
+
+
+def verify_user_password(user, password):
+    """Verify a password against its stored hash."""
+    if not user:
+        return False
+    return check_password_hash(user["password_hash"], password)
+
+def create_user(full_name, email, password):
+    """Create a user account with a securely hashed password."""
+    conn = get_db_connection()
+    if not conn:
+        raise RuntimeError("Database connection failed")
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    full_name VARCHAR(150) NOT NULL,
+                    email VARCHAR(255) NOT NULL UNIQUE,
+                    password_hash VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+
+            cur.execute(
+                "SELECT id FROM users WHERE email = %s",
+                (email,)
+            )
+            if cur.fetchone():
+                return False
+
+            password_hash = generate_password_hash(password)
+
+            cur.execute("""
+                INSERT INTO users (full_name, email, password_hash)
+                VALUES (%s, %s, %s)
+            """, (full_name, email, password_hash))
+
+        conn.commit()
+        return True
+
+    except Exception:
+        conn.rollback()
+        logger.exception("Error creating user")
+        raise
+    finally:
+        conn.close()
+
+
+def get_user_by_email(email):
+    """Find a registered user by email."""
+    conn = get_db_connection()
+    if not conn:
+        raise RuntimeError("Database connection failed")
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    full_name VARCHAR(150) NOT NULL,
+                    email VARCHAR(255) NOT NULL UNIQUE,
+                    password_hash VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """)
+            cur.execute(
+                "SELECT id, full_name, email, password_hash "
+                "FROM users WHERE email = %s",
+                (email,)
+            )
+            return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def verify_user_password(user, password):
+    """Verify a submitted password against its stored hash."""
+    if not user:
+        return False
+
+    stored_hash = user.get("password_hash")
+    if not stored_hash:
+        return False
+
+    return check_password_hash(stored_hash, password)
