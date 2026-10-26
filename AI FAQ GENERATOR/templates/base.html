@@ -61,6 +61,38 @@
               <i class="fa-solid fa-plus me-1"></i> New FAQ
             </a>
           </li>
+          
+
+{% if session.get('user_id') %}
+  <li class="nav-item">
+    <span class="nav-link px-3 text-white">
+      <i class="fa-solid fa-user me-1"></i>
+      Hi, {{ session.get('user_name', 'User') }}
+    </span>
+  </li>
+
+  <li class="nav-item ms-lg-2">
+    <a class="btn btn-sm btn-primary-gradient px-3 py-2 text-white fw-semibold shadow-sm"
+       href="{{ url_for('logout') }}">
+      <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+    </a>
+  </li>
+{% else %}
+  <li class="nav-item">
+    <a class="nav-link px-3" href="{{ url_for('login') }}">
+      <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+    </a>
+  </li>
+
+  <li class="nav-item ms-lg-2">
+    <a class="btn btn-sm btn-primary-gradient px-3 py-2 text-white fw-semibold shadow-sm"
+       href="{{ url_for('signup') }}">
+      <i class="fa-solid fa-user-plus me-1"></i> Sign Up
+    </a>
+  </li>
+{% endif %}
+
+
         </ul>
       </div>
     </div>
