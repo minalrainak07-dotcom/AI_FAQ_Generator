@@ -97,7 +97,7 @@
           <!-- Created Date -->
           <span class="text-muted small ms-md-2" id="resultsDate">
             <i class="fa-regular fa-calendar-days me-1"></i>
-            <span id="resultsDateText">{{ generation.created_at[:10] if generation and generation.created_at and generation.created_at|length >= 10 else 'Today' }}</span>
+           <span>{{ generation.created_at.strftime('%Y-%m-%d') if generation and generation.created_at and generation.created_at.strftime is defined else 'Recently' }}
           </span>
         </div>
       </div>
