@@ -93,31 +93,39 @@
                 </div>
               </div>
 
+              
+              
               <!-- Date Created -->
               <div class="col-lg-2 col-md-3 text-md-center">
                 <div class="text-muted small">
                   <i class="fa-regular fa-calendar-days me-1"></i>
-                  <span>{{ gen.created_at[:10] if gen.created_at and gen.created_at|length >= 10 else (gen.created_at or 'Recently') }}</span>
+                  <span>
+                    {{ gen.created_at.strftime('%Y-%m-%d') if gen.created_at and gen.created_at.strftime is defined else (gen.created_at or 'Recently') }}
+                  </span>
                 </div>
-                <span class="text-muted x-small d-block">{{ gen.created_at[11:16] if gen.created_at and gen.created_at|length >= 16 else '' }}</span>
               </div>
 
               <!-- Action Buttons -->
               <div class="col-lg-4 col-md-4 text-md-end">
                 <div class="d-flex align-items-center justify-content-md-end gap-2 flex-wrap">
+
                   <!-- View Button -->
                   <a href="/results/{{ gen.id }}" class="btn btn-sm btn-outline-primary px-3 rounded-pill fw-semibold">
                     <i class="fa-solid fa-eye me-1"></i> View
                   </a>
 
                   <!-- Rename Button -->
-                  <button type="button" class="btn btn-sm btn-light border text-navy rounded-pill px-3 btn-history-rename" data-id="{{ gen.id }}" data-title="{{ gen.title or '' }}">
+                  <button type="button"
+                          class="btn btn-sm btn-light border text-navy rounded-pill px-3 btn-history-rename"
+                          data-id="{{ gen.id }}"
+                          data-title="{{ gen.title or '' }}">
                     <i class="fa-solid fa-pen-to-square me-1"></i> Rename
                   </button>
 
                   <!-- Export Dropdown -->
                   <div class="dropdown d-inline-block">
-                    <button class="btn btn-sm btn-light border text-navy rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-sm btn-light border text-navy rounded-pill px-3 dropdown-toggle"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
                       <i class="fa-solid fa-download me-1"></i> Export
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
@@ -140,11 +148,17 @@
                   </div>
 
                   <!-- Delete Button -->
-                  <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-2 btn-history-delete" data-id="{{ gen.id }}" data-title="{{ gen.title or '' }}" title="Delete Generation">
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger rounded-circle p-2 btn-history-delete"
+                          data-id="{{ gen.id }}"
+                          data-title="{{ gen.title or '' }}"
+                          title="Delete Generation">
                     <i class="fa-regular fa-trash-can"></i>
                   </button>
+
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -153,7 +167,9 @@
 
     <!-- Empty Search Results Message (hidden by default) -->
     <div id="noSearchResultsMsg" class="card border-0 shadow-sm rounded-12 p-5 text-center d-none mt-3">
-      <div class="text-muted mb-3"><i class="fa-solid fa-magnifying-glass fs-1"></i></div>
+      <div class="text-muted mb-3">
+        <i class="fa-solid fa-magnifying-glass fs-1"></i>
+      </div>
       <h5 class="fw-bold text-navy">No matching generations found</h5>
       <p class="text-muted small">Try searching with a different term or clear the filter.</p>
       <div>
